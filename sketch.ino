@@ -1,37 +1,50 @@
-#define R 2
-#define Y 4
-#define G 6
-#define B 8
-#define W 10
+#include <string.h>
 
-#define COUNT 5
+#define R 3
+#define G 5
+#define B 6
 
-const byte LEDS[COUNT] = {R, Y, G, B, W};
-byte i, led, action;
-String command;
+#define COUNT 3
+
+const byte RGB[COUNT] = {R, G, B};
+const char DELIMITER = ',';
+byte i;
 
 void setup() {
   Serial.begin(9600);
   for (i = 0; i < COUNT; i++) {
-    pinMode(LEDS[i], OUTPUT);
+    pinMode(RGB[i], OUTPUT);
+    analogWrite(RGB[i], 255);
   }
 }
 
 void loop() {
-  while (!Serial.available()) {}
-  command = String(Serial.parseInt());
-  led = command.charAt(0) - '0';
-  action = command.charAt(1) - '0';
+  if (Serial.available()) {
+    String color = Serial.readStringUntil('\n');
+    color.trim();
 
-  if (isValidLed(led) && isValidAction(action)) {
-    digitalWrite(LEDS[led - 1], action);
+    int values[COUNT];
+    int total = parseColor(color, values);
+
+    for (i = 0; i < total; i++) {
+      analogWrite(RGB[i], 255 - values[i]);
+    }
   }
 }
 
-boolean isValidLed(byte led) {
-  return led >= 1 && led <= COUNT;
-}
+int parseColor(const String& input, int* output) {
+  char str[input.length() + 1];
+  strcpy(str, input.c_str());
 
-boolean isValidAction(byte action) {
-  return action == 0 || action == 1;
+  char* token = strtok(str, &DELIMITER);
+  int count = 0;
+
+  while (token != NULL && count < COUNT) {
+    output[count] = atoi(token);
+    count++;
+
+    token = strtok(NULL, &DELIMITER);
+  }
+
+  return count;
 }

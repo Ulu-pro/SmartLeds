@@ -20,11 +20,11 @@ async def start_handler(message: types.Message):
 async def voice_handler(message: types.Message):
     file = await bot.download_file_by_id(message.voice.file_id)
     save_audio(audio_file=file)
-    text, command = get_detected()
+    text, color = get_detected()
     await message.reply(Config.DETECTED_TEXT.format(text),
                         parse_mode=types.ParseMode.MARKDOWN)
-    serial.write(command.encode())
-    print(text)
+    serial.write(color.encode())
+    print(text, color.encode())
 
 
 if __name__ == '__main__':

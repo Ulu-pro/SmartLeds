@@ -10,12 +10,8 @@ def get_detected():
         audio = recognizer.record(source)
 
     text = recognizer.recognize_google(audio, language=Config.LANGUAGE)
-    action_word, led_color = str(text).lower().split()
+    rgb = Config.COLORS.get(str(text).lower(), (0, 0, 0))
 
-    action_id = Config.ACTIONS[action_word]
-    led_id = Config.LEDS[led_color]
+    color = ','.join(str(value) for value in rgb)
 
-    return [
-        text,
-        str(led_id) + str(action_id)
-    ]
+    return [text, color]
